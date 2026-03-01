@@ -36,3 +36,4 @@ Winter-aware campus routing + realistic “likely foot-traffic zones” (events 
 
 	- Backend exposes `/campus/geojson`, `/campus/search`, `/reports`, `/pass-through`, and extended `/route` endpoints.
 	- The backend caches Overpass results to `backend/cache/campus_geojson.json`.
+# snowpath-unl
