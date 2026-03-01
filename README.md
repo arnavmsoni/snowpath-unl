@@ -2,6 +2,7 @@
 
 SnowPath UNL is a winter-aware campus navigation app for the University of Nebraska-Lincoln (City Campus).
 It computes routes using weather, reported path conditions, and indoor connector availability to reduce winter exposure.
+Youtube link: https://youtu.be/NearKHAwIY8
 
 ## Predictive Analytics (Top-Line)
 
