@@ -8,191 +8,202 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
 
 // ─── Complete UNL Campus Building Database ─────────────────────────────────
 // Sorted A→Z. Every major building on City Campus with accurate coords.
-const UNL_BUILDINGS = [
-  { name: "Abel Hall",                    lat: 40.8237, lon: -96.6985, type: "Residence Hall",   icon: "🏠" },
+// ─────────────────────────────────────────────────────────────────────────────
+//  DROP-IN REPLACEMENTS for page.tsx
+//  Replace the existing UNL_BUILDINGS array and SPECIAL_SEARCH_POINTS with these.
+//  Key fixes:
+//    • Willa Cather Dining is at the NORTH end of campus (40.8260), not the middle
+//    • 14th & Avery is at 40.8177 / -96.6968, not 40.8201
+//    • Abel, Cather Hall, Pound, Gaylord, Thunderbird all shifted north accordingly
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const SPECIAL_SEARCH_POINTS = [
+  // Intersections
+  { name: "14th and Avery",      lat: 40.8177, lon: -96.6968, type: "Intersection",   icon: "📍" },
+  { name: "14th & Avery",        lat: 40.8177, lon: -96.6968, type: "Intersection",   icon: "📍" },
+  { name: "14th & Avery Garage", lat: 40.8180, lon: -96.6965, type: "Parking",        icon: "🅿️" },
+
+  // Dining
+  { name: "Cather Dining Hall",  lat: 40.8260, lon: -96.6990, type: "Dining",         icon: "🍽️" },
+  { name: "Cather Dining",       lat: 40.8260, lon: -96.6990, type: "Dining",         icon: "🍽️" },
+  { name: "Willa Cather Dining", lat: 40.8260, lon: -96.6990, type: "Dining",         icon: "🍽️" },
+  { name: "Harper Dining Center",lat: 40.8260, lon: -96.6990, type: "Dining",         icon: "🍽️" },
+
+  // Residence Halls (north campus cluster)
+  { name: "Cather Hall",         lat: 40.8248, lon: -96.6992, type: "Residence Hall", icon: "🏠" },
+  { name: "Abel Hall",           lat: 40.8240, lon: -96.6985, type: "Residence Hall", icon: "🏠" },
+  { name: "Pound Hall",          lat: 40.8256, lon: -96.6990, type: "Residence Hall", icon: "🏠" },
+  { name: "Selleck Quadrangle",  lat: 40.8225, lon: -96.6988, type: "Residence Hall", icon: "🏠" },
+  { name: "Selleck",             lat: 40.8225, lon: -96.6988, type: "Residence Hall", icon: "🏠" },
+
+  // Academic
+  { name: "Hawks Hall",          lat: 40.8190, lon: -96.6985, type: "Academic",       icon: "💼" },
+  { name: "Avery Hall",          lat: 40.8180, lon: -96.7015, type: "Academic",       icon: "🎓" },
+];
+
+// Full building list — sorted A→Z, corrected coordinates
+export const UNL_BUILDINGS = [
+  { name: "Abel Hall",                    lat: 40.8240, lon: -96.6985, type: "Residence Hall",   icon: "🏠" },
   { name: "Andersen Hall",                lat: 40.8194, lon: -96.7007, type: "Academic",          icon: "🎓" },
   { name: "Archy Hall (Architecture)",    lat: 40.8185, lon: -96.6994, type: "Academic",          icon: "🎓" },
   { name: "Avery Hall",                   lat: 40.8180, lon: -96.7015, type: "Academic",          icon: "🎓" },
   { name: "Bessey Hall",                  lat: 40.8196, lon: -96.7032, type: "Academic",          icon: "🎓" },
   { name: "Brace Laboratory",             lat: 40.8188, lon: -96.7020, type: "Lab",               icon: "🔬" },
   { name: "Burnett Hall",                 lat: 40.8205, lon: -96.7005, type: "Academic",          icon: "🎓" },
-  { name: "Cather Hall",                  lat: 40.8231, lon: -96.6992, type: "Residence Hall",    icon: "🏠" },
+  { name: "Cather Hall",                  lat: 40.8248, lon: -96.6992, type: "Residence Hall",    icon: "🏠" },  // north campus
+  { name: "Cather-Pound Dining",          lat: 40.8260, lon: -96.6990, type: "Dining",            icon: "🍽️" },  // north campus
   { name: "Champions Club",               lat: 40.8228, lon: -96.7058, type: "Athletics",         icon: "🏆" },
   { name: "Chase Hall",                   lat: 40.8200, lon: -96.7045, type: "Academic",          icon: "🎓" },
   { name: "City Campus Student Union",    lat: 40.8202, lon: -96.7009, type: "Student Services",  icon: "🏛️" },
   { name: "Classics Building",            lat: 40.8193, lon: -96.7020, type: "Academic",          icon: "🎓" },
-  { name: "College of Business",          lat: 40.8186, lon: -96.6972, type: "Academic",          icon: "💼" },
-  { name: "College of Law",              lat: 40.8210, lon: -96.6999, type: "Academic",          icon: "⚖️" },
-  { name: "Cook Pavilion",               lat: 40.8235, lon: -96.7050, type: "Athletics",         icon: "🏟️" },
-  { name: "Cather-Pound Dining",         lat: 40.8234, lon: -96.6990, type: "Dining",            icon: "🍽️" },
-  { name: "Dinsdale Family Learning Comm.", lat: 40.8204, lon: -96.7018, type: "Academic",       icon: "📚" },
-  { name: "East Stadium",                lat: 40.8228, lon: -96.7045, type: "Athletics",         icon: "🏟️" },
-  { name: "Eastside Dining",             lat: 40.8195, lon: -96.6988, type: "Dining",            icon: "🍽️" },
-  { name: "Elsie F. Dosek Hall",         lat: 40.8213, lon: -96.7035, type: "Administrative",   icon: "🏢" },
-  { name: "Ferguson Hall",               lat: 40.8198, lon: -96.7042, type: "Academic",          icon: "🎓" },
-  { name: "Filley Hall",                 lat: 40.8175, lon: -96.7010, type: "Academic",          icon: "🎓" },
-  { name: "Fitzpatrick Hall",            lat: 40.8215, lon: -96.7020, type: "Academic",          icon: "🎓" },
-  { name: "Folsom Children's Zoo",       lat: 40.8160, lon: -96.6990, type: "Other",             icon: "🦁" },
-  { name: "Gaughan-Maulick Study Hall",  lat: 40.8219, lon: -96.6995, type: "Academic",          icon: "📚" },
-  { name: "Gaylord Hall",               lat: 40.8241, lon: -96.6988, type: "Residence Hall",    icon: "🏠" },
-  { name: "Gillen Hall",                lat: 40.8209, lon: -96.7030, type: "Academic",          icon: "🎓" },
-  { name: "Grant Memorial Hall",        lat: 40.8207, lon: -96.7014, type: "Academic",          icon: "🎓" },
-  { name: "Harpster Hall",              lat: 40.8217, lon: -96.7010, type: "Academic",          icon: "🎓" },
-  { name: "Hardin Hall",               lat: 40.8178, lon: -96.7008, type: "Academic",          icon: "🎓" },
-  { name: "Hawks Hall (Business)",      lat: 40.8194, lon: -96.6968, type: "Academic",          icon: "💼" },
-  { name: "Health Center (SHCS)",       lat: 40.8211, lon: -96.7043, type: "Health",            icon: "🏥" },
-  { name: "Henzlik Hall",              lat: 40.8205, lon: -96.7025, type: "Academic",          icon: "🎓" },
-  { name: "Hewit Place",              lat: 40.8238, lon: -96.7002, type: "Residence Hall",    icon: "🏠" },
-  { name: "Hope Residence Center",     lat: 40.8243, lon: -96.6995, type: "Residence Hall",    icon: "🏠" },
-  { name: "Howard L. Hawks Hall",      lat: 40.8194, lon: -96.6968, type: "Academic",          icon: "💼" },
-  { name: "Husker Hub",               lat: 40.8202, lon: -96.7011, type: "Student Services",  icon: "🏛️" },
-  { name: "Jorgensen Hall",           lat: 40.8199, lon: -96.7015, type: "Academic",          icon: "🎓" },
+  { name: "College of Business",          lat: 40.8190, lon: -96.6985, type: "Academic",          icon: "💼" },
+  { name: "College of Law",               lat: 40.8210, lon: -96.6999, type: "Academic",          icon: "⚖️" },
+  { name: "Cook Pavilion",                lat: 40.8235, lon: -96.7050, type: "Athletics",         icon: "🏟️" },
+  { name: "Dinsdale Family Learning Comm.", lat: 40.8204, lon: -96.7018, type: "Academic",        icon: "📚" },
+  { name: "East Stadium",                 lat: 40.8228, lon: -96.7045, type: "Athletics",         icon: "🏟️" },
+  { name: "Eastside Dining",              lat: 40.8197, lon: -96.6993, type: "Dining",            icon: "🍽️" },
+  { name: "Ferguson Hall",                lat: 40.8198, lon: -96.7042, type: "Academic",          icon: "🎓" },
+  { name: "Filley Hall",                  lat: 40.8175, lon: -96.7010, type: "Academic",          icon: "🎓" },
+  { name: "Fitzpatrick Hall",             lat: 40.8215, lon: -96.7020, type: "Academic",          icon: "🎓" },
+  { name: "Gaughan-Maulick Study Hall",   lat: 40.8219, lon: -96.6995, type: "Academic",          icon: "📚" },
+  { name: "Gaylord Hall",                 lat: 40.8245, lon: -96.6988, type: "Residence Hall",    icon: "🏠" },  // north campus
+  { name: "Gillen Hall",                  lat: 40.8209, lon: -96.7030, type: "Academic",          icon: "🎓" },
+  { name: "Grant Memorial Hall",          lat: 40.8207, lon: -96.7014, type: "Academic",          icon: "🎓" },
+  { name: "Hardin Hall",                  lat: 40.8178, lon: -96.7008, type: "Academic",          icon: "🎓" },
+  { name: "Harpster Hall",                lat: 40.8217, lon: -96.7010, type: "Academic",          icon: "🎓" },
+  { name: "Harper Dining Center",         lat: 40.8260, lon: -96.6990, type: "Dining",            icon: "🍽️" },  // north campus
+  { name: "Hawks Hall (Business)",        lat: 40.8190, lon: -96.6985, type: "Academic",          icon: "💼" },
+  { name: "Health Center (SHCS)",         lat: 40.8211, lon: -96.7043, type: "Health",            icon: "🏥" },
+  { name: "Henzlik Hall",                 lat: 40.8205, lon: -96.7025, type: "Academic",          icon: "🎓" },
+  { name: "Hewit Place",                  lat: 40.8238, lon: -96.7002, type: "Residence Hall",    icon: "🏠" },
+  { name: "Hope Residence Center",        lat: 40.8243, lon: -96.6995, type: "Residence Hall",    icon: "🏠" },
+  { name: "Howard L. Hawks Hall",         lat: 40.8190, lon: -96.6985, type: "Academic",          icon: "💼" },
+  { name: "Husker Hub",                   lat: 40.8202, lon: -96.7011, type: "Student Services",  icon: "🏛️" },
+  { name: "Jorgensen Hall",               lat: 40.8199, lon: -96.7015, type: "Academic",          icon: "🎓" },
   { name: "Kauffman Academic Residential Comm.", lat: 40.8187, lon: -96.7008, type: "Residence Hall", icon: "🏠" },
-  { name: "Keim Hall",               lat: 40.8175, lon: -96.7025, type: "Academic",          icon: "🎓" },
-  { name: "Kimball Hall",            lat: 40.8197, lon: -96.7026, type: "Academic",          icon: "🎓" },
-  { name: "Knoll Residential Center", lat: 40.8213, lon: -96.7048, type: "Residence Hall",    icon: "🏠" },
-  { name: "Krause Chapel",           lat: 40.8222, lon: -96.7060, type: "Other",             icon: "⛪" },
-  { name: "Larsen Hall",            lat: 40.8195, lon: -96.7018, type: "Academic",          icon: "🎓" },
-  { name: "Law College Building",    lat: 40.8210, lon: -96.7000, type: "Academic",          icon: "⚖️" },
-  { name: "Liberal Arts and Sciences Hall", lat: 40.8187, lon: -96.7030, type: "Academic",  icon: "🎓" },
-  { name: "Love Library (Love Memorial Hall)", lat: 40.8197, lon: -96.7019, type: "Library", icon: "📚" },
-  { name: "Louise Pound Hall",       lat: 40.8201, lon: -96.7036, type: "Academic",          icon: "🎓" },
-  { name: "Lyman Briggs Hall",       lat: 40.8195, lon: -96.7012, type: "Academic",          icon: "🎓" },
-  { name: "Mabel Lee Hall",         lat: 40.8207, lon: -96.7038, type: "Academic",          icon: "🏋️" },
-  { name: "Manatt/Phelps/Phillips Arena", lat: 40.8225, lon: -96.7052, type: "Athletics",  icon: "🏀" },
-  { name: "Marvel Baker Hall",       lat: 40.8208, lon: -96.7003, type: "Academic",          icon: "🎓" },
-  { name: "McCollum Hall",          lat: 40.8214, lon: -96.7030, type: "Academic",          icon: "🎓" },
-  { name: "Memorial Stadium",       lat: 40.8231, lon: -96.7054, type: "Athletics",         icon: "🏟️" },
-  { name: "Military & Naval Science", lat: 40.8203, lon: -96.7021, type: "Academic",        icon: "🎓" },
-  { name: "Morrison Center",        lat: 40.8190, lon: -96.7040, type: "Academic",          icon: "🎓" },
-  { name: "Morrill Hall (Elephant Hall)", lat: 40.8204, lon: -96.7030, type: "Museum",     icon: "🦣" },
-  { name: "Nebraska East Union",    lat: 40.8196, lon: -96.6990, type: "Student Services",  icon: "🏛️" },
-  { name: "Nebraska Hall",          lat: 40.8183, lon: -96.7022, type: "Academic",          icon: "🎓" },
-  { name: "Nebraska Innovation Campus", lat: 40.8150, lon: -96.6980, type: "Research",     icon: "💡" },
-  { name: "Nebraska Union",         lat: 40.8202, lon: -96.7009, type: "Student Services",  icon: "🏛️" },
-  { name: "Newhouse Hall",          lat: 40.8215, lon: -96.7015, type: "Academic",          icon: "🎓" },
-  { name: "Old Water Tower",        lat: 40.8218, lon: -96.7026, type: "Landmark",          icon: "🗼" },
-  { name: "Othmer Hall",           lat: 40.8182, lon: -96.7017, type: "Academic",          icon: "🔬" },
-  { name: "Outdoor Adventure Center", lat: 40.8209, lon: -96.7042, type: "Recreation",     icon: "🏕️" },
-  { name: "Panhandle Research Extension Center", lat: 40.8188, lon: -96.7035, type: "Research", icon: "🔬" },
-  { name: "Parking Services",       lat: 40.8215, lon: -96.7048, type: "Administrative",   icon: "🅿️" },
-  { name: "Plant Sciences Hall",    lat: 40.8178, lon: -96.7028, type: "Academic",          icon: "🌱" },
-  { name: "Pound Hall",            lat: 40.8200, lon: -96.7037, type: "Academic",          icon: "🎓" },
-  { name: "Prem S. Paul Research Center", lat: 40.8176, lon: -96.7005, type: "Research",  icon: "🔬" },
-  { name: "Public Policy Center",   lat: 40.8210, lon: -96.7008, type: "Research",         icon: "🔬" },
-  { name: "Richards Hall",         lat: 40.8208, lon: -96.7017, type: "Academic",          icon: "🎓" },
-  { name: "Roper Hall",            lat: 40.8192, lon: -96.7028, type: "Academic",          icon: "🎓" },
-  { name: "Ross Media Arts Center", lat: 40.8200, lon: -96.7012, type: "Academic",         icon: "🎬" },
-  { name: "Sandoz Heritage Center", lat: 40.8198, lon: -96.7035, type: "Academic",         icon: "🎓" },
-  { name: "Schmid Law Library",     lat: 40.8210, lon: -96.7001, type: "Library",          icon: "📚" },
-  { name: "Scott Engineering Center", lat: 40.8183, lon: -96.7005, type: "Academic",       icon: "⚙️" },
-  { name: "Seaton Hall",           lat: 40.8186, lon: -96.6997, type: "Academic",          icon: "🎓" },
-  { name: "Selleck Quadrangle",    lat: 40.8222, lon: -96.6988, type: "Residence Hall",    icon: "🏠" },
-  { name: "Sheldon Museum of Art", lat: 40.8197, lon: -96.7003, type: "Museum",            icon: "🎨" },
-  { name: "Smith Hall",            lat: 40.8206, lon: -96.7006, type: "Academic",          icon: "🎓" },
-  { name: "Student Rec Center",    lat: 40.8207, lon: -96.7042, type: "Recreation",        icon: "🏋️" },
-  { name: "Teachers College",      lat: 40.8205, lon: -96.7026, type: "Academic",          icon: "🎓" },
-  { name: "Temple Building",       lat: 40.8198, lon: -96.7010, type: "Academic",          icon: "🎓" },
-  { name: "Temporary Building 22", lat: 40.8190, lon: -96.7022, type: "Administrative",   icon: "🏢" },
-  { name: "Theology Library",      lat: 40.8200, lon: -96.7003, type: "Library",           icon: "📚" },
-  { name: "Thunderbird Hall",      lat: 40.8236, lon: -96.6985, type: "Residence Hall",    icon: "🏠" },
-  { name: "University Health Center", lat: 40.8211, lon: -96.7044, type: "Health",         icon: "🏥" },
-  { name: "University Police",     lat: 40.8208, lon: -96.7048, type: "Administrative",    icon: "🚔" },
-  { name: "University Suites",     lat: 40.8244, lon: -96.6983, type: "Residence Hall",    icon: "🏠" },
-  { name: "Van Brunt Visitor Center", lat: 40.8215, lon: -96.7000, type: "Administrative", icon: "ℹ️" },
-  { name: "Vine Street Campus",    lat: 40.8230, lon: -96.7010, type: "Other",             icon: "🏫" },
-  { name: "Walter Scott Engineering Center", lat: 40.8183, lon: -96.7005, type: "Academic", icon: "⚙️" },
-  { name: "Westbrook Music Building", lat: 40.8202, lon: -96.7048, type: "Academic",       icon: "🎵" },
-  { name: "Whitney Hall",          lat: 40.8199, lon: -96.7046, type: "Academic",          icon: "🎓" },
-  { name: "Whittier Building",     lat: 40.8220, lon: -96.7030, type: "Administrative",   icon: "🏢" },
-  { name: "Woods Art Building",    lat: 40.8192, lon: -96.7014, type: "Academic",          icon: "🎨" },
-  { name: "Willa Cather Dining",   lat: 40.8233, lon: -96.6990, type: "Dining",            icon: "🍽️" },
-  { name: "Ziegler Center",        lat: 40.8196, lon: -96.6999, type: "Administrative",    icon: "🏢" },
+  { name: "Keim Hall",                    lat: 40.8175, lon: -96.7025, type: "Academic",          icon: "🎓" },
+  { name: "Kimball Hall",                 lat: 40.8197, lon: -96.7026, type: "Academic",          icon: "🎓" },
+  { name: "Knoll Residential Center",     lat: 40.8213, lon: -96.7048, type: "Residence Hall",    icon: "🏠" },
+  { name: "Krause Chapel",                lat: 40.8222, lon: -96.7060, type: "Other",             icon: "⛪" },
+  { name: "Larsen Hall",                  lat: 40.8195, lon: -96.7018, type: "Academic",          icon: "🎓" },
+  { name: "Liberal Arts and Sciences Hall",lat: 40.8187, lon: -96.7030, type: "Academic",         icon: "🎓" },
+  { name: "Love Library",                 lat: 40.8197, lon: -96.7019, type: "Library",           icon: "📚" },
+  { name: "Louise Pound Hall",            lat: 40.8201, lon: -96.7036, type: "Academic",          icon: "🎓" },
+  { name: "Lyman Briggs Hall",            lat: 40.8195, lon: -96.7012, type: "Academic",          icon: "🎓" },
+  { name: "Mabel Lee Hall",               lat: 40.8207, lon: -96.7038, type: "Academic",          icon: "🏋️" },
+  { name: "Marvel Baker Hall",            lat: 40.8208, lon: -96.7003, type: "Academic",          icon: "🎓" },
+  { name: "McCollum Hall",                lat: 40.8214, lon: -96.7030, type: "Academic",          icon: "🎓" },
+  { name: "Memorial Stadium",             lat: 40.8231, lon: -96.7054, type: "Athletics",         icon: "🏟️" },
+  { name: "Morrill Hall (Elephant Hall)", lat: 40.8204, lon: -96.7030, type: "Museum",            icon: "🦣" },
+  { name: "Nebraska East Union",          lat: 40.8197, lon: -96.6993, type: "Student Services",  icon: "🏛️" },
+  { name: "Nebraska Hall",                lat: 40.8183, lon: -96.7022, type: "Academic",          icon: "🎓" },
+  { name: "Nebraska Innovation Campus",   lat: 40.8150, lon: -96.6980, type: "Research",          icon: "💡" },
+  { name: "Nebraska Union",               lat: 40.8202, lon: -96.7009, type: "Student Services",  icon: "🏛️" },
+  { name: "Newhouse Hall",                lat: 40.8215, lon: -96.7015, type: "Academic",          icon: "🎓" },
+  { name: "Othmer Hall",                  lat: 40.8182, lon: -96.7017, type: "Academic",          icon: "🔬" },
+  { name: "Plant Sciences Hall",          lat: 40.8178, lon: -96.7028, type: "Academic",          icon: "🌱" },
+  { name: "Pound Hall",                   lat: 40.8256, lon: -96.6990, type: "Residence Hall",    icon: "🏠" },  // north campus
+  { name: "Prem S. Paul Research Center", lat: 40.8176, lon: -96.7005, type: "Research",          icon: "🔬" },
+  { name: "Public Policy Center",         lat: 40.8210, lon: -96.7008, type: "Research",          icon: "🔬" },
+  { name: "Richards Hall",                lat: 40.8208, lon: -96.7017, type: "Academic",          icon: "🎓" },
+  { name: "Roper Hall",                   lat: 40.8192, lon: -96.7028, type: "Academic",          icon: "🎓" },
+  { name: "Ross Media Arts Center",       lat: 40.8200, lon: -96.7012, type: "Academic",          icon: "🎬" },
+  { name: "Schmid Law Library",           lat: 40.8210, lon: -96.7001, type: "Library",           icon: "📚" },
+  { name: "Scott Engineering Center",     lat: 40.8183, lon: -96.7005, type: "Academic",          icon: "⚙️" },
+  { name: "Seaton Hall",                  lat: 40.8186, lon: -96.6997, type: "Academic",          icon: "🎓" },
+  { name: "Selleck Quadrangle",           lat: 40.8225, lon: -96.6988, type: "Residence Hall",    icon: "🏠" },
+  { name: "Sheldon Museum of Art",        lat: 40.8197, lon: -96.7003, type: "Museum",            icon: "🎨" },
+  { name: "Smith Hall",                   lat: 40.8206, lon: -96.7006, type: "Academic",          icon: "🎓" },
+  { name: "Student Rec Center",           lat: 40.8207, lon: -96.7042, type: "Recreation",        icon: "🏋️" },
+  { name: "Teachers College",             lat: 40.8205, lon: -96.7026, type: "Academic",          icon: "🎓" },
+  { name: "Temple Building",              lat: 40.8198, lon: -96.7010, type: "Academic",          icon: "🎓" },
+  { name: "Thunderbird Hall",             lat: 40.8242, lon: -96.6985, type: "Residence Hall",    icon: "🏠" },  // north campus
+  { name: "University Health Center",     lat: 40.8211, lon: -96.7044, type: "Health",            icon: "🏥" },
+  { name: "University Police",            lat: 40.8208, lon: -96.7048, type: "Administrative",    icon: "🚔" },
+  { name: "University Suites",            lat: 40.8244, lon: -96.6983, type: "Residence Hall",    icon: "🏠" },
+  { name: "Van Brunt Visitor Center",     lat: 40.8215, lon: -96.7000, type: "Administrative",    icon: "ℹ️" },
+  { name: "Walter Scott Engineering Center", lat: 40.8183, lon: -96.7005, type: "Academic",       icon: "⚙️" },
+  { name: "Westbrook Music Building",     lat: 40.8202, lon: -96.7048, type: "Academic",          icon: "🎵" },
+  { name: "Whitney Hall",                 lat: 40.8199, lon: -96.7046, type: "Academic",          icon: "🎓" },
+  { name: "Willa Cather Dining",          lat: 40.8260, lon: -96.6990, type: "Dining",            icon: "🍽️" },  // north campus
+  { name: "Woods Art Building",           lat: 40.8192, lon: -96.7014, type: "Academic",          icon: "🎨" },
+  { name: "Ziegler Center",               lat: 40.8196, lon: -96.6999, type: "Administrative",    icon: "🏢" },
 ].sort((a, b) => a.name.localeCompare(b.name));
 
-// ─── Mock report data seeded around UNL campus ────────────────────────────
-const MOCK_REPORTS = [
-  { id: 1,  lat: 40.8208, lon: -96.7015, report_type: "icy",     note: "Very slippery near steps",       rating: 1, created_at: "2025-02-10T08:12:00Z" },
-  { id: 2,  lat: 40.8210, lon: -96.7016, report_type: "icy",     note: "Ice patches forming",             rating: 1, created_at: "2025-02-10T08:30:00Z" },
-  { id: 3,  lat: 40.8205, lon: -96.7014, report_type: "icy",     note: "Treacherous conditions",          rating: 1, created_at: "2025-02-10T08:45:00Z" },
-  { id: 4,  lat: 40.8195, lon: -96.7022, report_type: "cleared", note: "Salted and dry",                  rating: 5, created_at: "2025-02-10T09:00:00Z" },
-  { id: 5,  lat: 40.8192, lon: -96.7020, report_type: "cleared", note: "Fully shoveled",                  rating: 5, created_at: "2025-02-10T09:15:00Z" },
-  { id: 6,  lat: 40.8190, lon: -96.7018, report_type: "salted",  note: "Salt applied",                    rating: 4, created_at: "2025-02-10T09:30:00Z" },
-  { id: 7,  lat: 40.8201, lon: -96.7005, report_type: "blocked", note: "Snowplow blocking path",          rating: 2, created_at: "2025-02-10T07:30:00Z" },
-  { id: 8,  lat: 40.8185, lon: -96.7030, report_type: "salted",  note: "Salt applied, good to go",        rating: 4, created_at: "2025-02-10T09:45:00Z" },
-  { id: 9,  lat: 40.8187, lon: -96.7032, report_type: "cleared", note: "Well maintained",                 rating: 5, created_at: "2025-02-10T10:00:00Z" },
-  { id: 10, lat: 40.8200, lon: -96.7010, report_type: "icy",     note: "Black ice forming",               rating: 1, created_at: "2025-02-10T10:00:00Z" },
-  { id: 11, lat: 40.8212, lon: -96.7000, report_type: "cleared", note: "Fully shoveled and salted",       rating: 5, created_at: "2025-02-10T08:50:00Z" },
-  { id: 12, lat: 40.8190, lon: -96.7012, report_type: "icy",     note: "Black ice near fountain",         rating: 1, created_at: "2025-02-10T10:00:00Z" },
-  { id: 13, lat: 40.8205, lon: -96.7035, report_type: "cleared", note: "Crew just finished",              rating: 5, created_at: "2025-02-10T09:20:00Z" },
-  { id: 14, lat: 40.8183, lon: -96.7010, report_type: "blocked", note: "Construction equipment on path",  rating: 1, created_at: "2025-02-10T08:00:00Z" },
-  { id: 15, lat: 40.8193, lon: -96.7010, report_type: "salted",  note: "Well salted",                     rating: 4, created_at: "2025-02-10T12:15:00Z" },
-  { id: 16, lat: 40.8209, lon: -96.7022, report_type: "blocked", note: "Temporary blockage",              rating: 2, created_at: "2025-02-10T11:15:00Z" },
-  { id: 17, lat: 40.8199, lon: -96.7030, report_type: "cleared", note: "Recently cleared",               rating: 5, created_at: "2025-02-10T12:00:00Z" },
-  { id: 18, lat: 40.8214, lon: -96.7010, report_type: "icy",     note: "Very icy",                       rating: 1, created_at: "2025-02-10T13:30:00Z" },
-  { id: 19, lat: 40.8185, lon: -96.7015, report_type: "salted",  note: "Maintained path",                rating: 4, created_at: "2025-02-10T13:45:00Z" },
-  { id: 20, lat: 40.8210, lon: -96.7028, report_type: "cleared", note: "Open walkway",                   rating: 5, created_at: "2025-02-10T14:00:00Z" },
+type ReportType = "icy" | "cleared" | "blocked" | "salted";
+type ReportItem = {
+  id: number;
+  lat: number;
+  lon: number;
+  report_type: ReportType;
+  note: string;
+  rating: number;
+  created_at: string;
+};
+
+const MOCK_REPORTS: ReportItem[] = [
+  { id: 1, lat: 40.8208, lon: -96.7015, report_type: "icy", note: "Very slippery near steps", rating: 1, created_at: "2026-02-10T08:12:00Z" },
+  { id: 2, lat: 40.8195, lon: -96.7022, report_type: "cleared", note: "Salted and dry", rating: 5, created_at: "2026-02-10T09:00:00Z" },
+  { id: 3, lat: 40.8201, lon: -96.7005, report_type: "blocked", note: "Snowplow blocking path", rating: 2, created_at: "2026-02-10T07:30:00Z" },
+  { id: 4, lat: 40.8185, lon: -96.7030, report_type: "salted", note: "Salt applied", rating: 4, created_at: "2026-02-10T09:45:00Z" },
+  { id: 5, lat: 40.8212, lon: -96.7000, report_type: "cleared", note: "Fully shoveled", rating: 5, created_at: "2026-02-10T08:50:00Z" },
+  { id: 6, lat: 40.8190, lon: -96.7012, report_type: "icy", note: "Black ice near fountain", rating: 1, created_at: "2026-02-10T10:00:00Z" },
+  { id: 7, lat: 40.8209, lon: -96.7022, report_type: "blocked", note: "Temporary blockage", rating: 2, created_at: "2026-02-10T11:15:00Z" },
+  { id: 8, lat: 40.8210, lon: -96.7028, report_type: "cleared", note: "Open walkway", rating: 5, created_at: "2026-02-10T14:00:00Z" },
 ];
 
-const REPORT_CONFIG: Record<string, { color: string; icon: string; label: string; bg: string }> = {
-  icy:     { color: "#60a5fa", icon: "🧊", label: "Icy",     bg: "rgba(96,165,250,0.15)"  },
-  cleared: { color: "#4ade80", icon: "✅", label: "Cleared", bg: "rgba(74,222,128,0.15)"  },
+const REPORT_CONFIG: Record<ReportType, { color: string; icon: string; label: string; bg: string }> = {
+  icy: { color: "#60a5fa", icon: "🧊", label: "Icy", bg: "rgba(96,165,250,0.15)" },
+  cleared: { color: "#4ade80", icon: "✅", label: "Cleared", bg: "rgba(74,222,128,0.15)" },
   blocked: { color: "#f87171", icon: "🚧", label: "Blocked", bg: "rgba(248,113,113,0.15)" },
-  salted:  { color: "#fb923c", icon: "🧂", label: "Salted",  bg: "rgba(251,146,60,0.15)"  },
+  salted: { color: "#fb923c", icon: "🧂", label: "Salted", bg: "rgba(251,146,60,0.15)" },
 };
+
+function normalizeSearchText(v: string) {
+  return v.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
+function localSearchResults(q: string) {
+  const qn = normalizeSearchText(q);
+  const qTokens = qn.split(" ").filter(Boolean);
+  if (!qn || qTokens.length === 0) return [];
+
+  const pool = [...SPECIAL_SEARCH_POINTS, ...UNL_BUILDINGS];
+  const scored = pool.map((item) => {
+    const nn = normalizeSearchText(item.name);
+    const nTokens = nn.split(" ").filter(Boolean);
+    let score = 0;
+    if (nn === qn) score = 5000;
+    else if (nn.startsWith(qn)) score = 3000;
+    else if (qn.length >= 3 && nn.includes(qn)) score = 2100;
+    else {
+      const overlap = qTokens.filter((t) => nTokens.includes(t)).length;
+      if (overlap > 0) score = 1300 + overlap * 180;
+    }
+    if (score === 0) return null;
+    // Penalize long unrelated names for short queries.
+    score -= Math.max(0, nTokens.length - qTokens.length) * 20;
+    return { ...item, score };
+  }).filter(Boolean) as Array<any>;
+
+  const bestByName = new Map<string, any>();
+  for (const row of scored) {
+    const key = normalizeSearchText(row.name);
+    const prev = bestByName.get(key);
+    if (!prev || row.score > prev.score) bestByName.set(key, row);
+  }
+
+  return Array.from(bestByName.values())
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .slice(0, 8)
+    .map(({ score, ...rest }) => rest);
+}
 
 // ─── Search logic: local fuzzy match + Overpass fallback ─────────────────
 function searchBuildings(query: string): Array<{ name: string; lat: number; lon: number; type: string; icon: string; score: number }> {
-  const q = query.toLowerCase().trim();
-  if (!q) return [];
-
-  return UNL_BUILDINGS
-    .map((b) => {
-      const name = b.name.toLowerCase();
-      const type = b.type.toLowerCase();
-      let score = 0;
-
-      // Exact match wins
-      if (name === q) score = 1000;
-      // Starts-with gets very high score
-      else if (name.startsWith(q)) score = 900 - name.indexOf(q);
-      // Word boundary match
-      else if (name.split(/[\s(,\-]+/).some((word) => word.startsWith(q))) score = 700;
-      // Contains match
-      else if (name.includes(q)) score = 500 - name.indexOf(q);
-      // Type match
-      else if (type.includes(q)) score = 200;
-      // Acronym match (e.g. "cub" → "City Union Building")
-      else {
-        const initials = b.name.split(/[\s\-()]+/).map(w => w[0]?.toLowerCase()).join("");
-        if (initials.includes(q)) score = 300;
-      }
-      // Nickname / alias matching
-      const aliases: Record<string, string[]> = {
-        "love library": ["love", "library", "memorial"],
-        "city campus student union": ["union", "cub", "nebraska union"],
-        "memorial stadium": ["stadium", "husker stadium", "memorial"],
-        "hawks hall": ["hawks", "business school", "cob"],
-        "kauffman academic": ["kauffman", "karc"],
-        "morrill hall": ["elephant hall", "morrill", "museum"],
-        "rec center": ["gym", "recreation", "srfc"],
-        "health center": ["shcs", "clinic", "medical"],
-      };
-      for (const [key, aliasList] of Object.entries(aliases)) {
-        if (b.name.toLowerCase().includes(key.split(" ")[0])) {
-          if (aliasList.some(a => a.includes(q) || q.includes(a))) score = Math.max(score, 600);
-        }
-      }
-
-      return { ...b, score };
-    })
-    .filter((b) => b.score > 0)
-    .sort((a, b) => {
-      // Primary: score desc, secondary: name asc
-      if (b.score !== a.score) return b.score - a.score;
-      return a.name.localeCompare(b.name);
-    })
-    .slice(0, 12);
+  void query;
+  // Kept for type compatibility; authoritative search now comes from backend /campus/search.
+  return [];
 }
 
 function approxMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
@@ -223,7 +234,71 @@ function instructionText(step: any, prevStep: any | null) {
   return `Turn left · ${bearingToCompass(bearing)}`;
 }
 
+function toFiniteNumber(v: any): number | null {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function routeFeaturesFromMeta(meta: any) {
+  const route = meta?.route || {};
+  const segs = Array.isArray(route.segments) ? route.segments : [];
+  const features = segs
+    .map((s: any) => {
+      const coords = (Array.isArray(s?.coords) ? s.coords : [])
+        .map((c: any) => {
+          const lat = toFiniteNumber(c?.lat);
+          const lon = toFiniteNumber(c?.lon);
+          return lat == null || lon == null ? null : [lon, lat];
+        })
+        .filter(Boolean);
+      if (coords.length < 2) return null;
+      return {
+        type: "Feature",
+        geometry: { type: "LineString", coordinates: coords },
+        properties: { outdoors: s?.outdoors !== false },
+      };
+    })
+    .filter(Boolean);
+
+  if (features.length > 0) return features;
+
+  const routeCoords = (Array.isArray(route.coords) ? route.coords : [])
+    .map((c: any) => {
+      const lat = toFiniteNumber(c?.lat);
+      const lon = toFiniteNumber(c?.lon);
+      return lat == null || lon == null ? null : [lon, lat];
+    })
+    .filter(Boolean);
+
+  if (routeCoords.length < 2) return [];
+  return [{
+    type: "Feature",
+    geometry: { type: "LineString", coordinates: routeCoords },
+    properties: { outdoors: true },
+  }];
+}
+
+function endpointPin(letter: string, color: string) {
+  const d = document.createElement("div");
+  d.innerHTML = `<div style="background:${color};color:#fff;font-size:13px;font-weight:800;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,0.4)">${letter}</div>`;
+  return d;
+}
+
 type Panel = "route" | "report" | "alerts" | null;
+const MODE_META = {
+  shortest: {
+    title: "Fastest",
+    description: "Picks the most direct path with minimum travel distance/time.",
+  },
+  sheltered: {
+    title: "Sheltered",
+    description: "Prefers indoor connectors and reduces outdoor exposure in cold weather.",
+  },
+  cleared: {
+    title: "Cleared",
+    description: "Prefers segments with positive condition reports and avoids risky areas when possible.",
+  },
+} as const;
 
 export default function SnowPathApp() {
   const mapDivRef  = useRef<HTMLDivElement | null>(null);
@@ -243,13 +318,13 @@ export default function SnowPathApp() {
   const [liveNav, setLiveNav]       = useState(false);
   const [userLoc, setUserLoc]       = useState<{ lat: number; lon: number } | null>(null);
   const [userHeading, setUserHeading] = useState<number>(0);
-  const [reports, setReports]       = useState(MOCK_REPORTS);
+  const [reports, setReports]       = useState<ReportItem[]>(MOCK_REPORTS);
   const [loading, setLoading]       = useState(false);
   const [mapReady, setMapReady]     = useState(false);
 
   // Report form state
   const [reportPos, setReportPos]   = useState<{ lat: number; lon: number } | null>(null);
-  const [reportType, setReportType] = useState<string>("icy");
+  const [reportType, setReportType] = useState<ReportType>("icy");
   const [reportNote, setReportNote] = useState<string>("");
   const [reportRating, setReportRating] = useState<number>(3);
   const [reportSuccess, setReportSuccess] = useState(false);
@@ -284,7 +359,7 @@ export default function SnowPathApp() {
         layers: [{ id: "osm", type: "raster", source: "osm" }],
       },
       center: [-96.7009, 40.8202],
-      zoom: 15.5,
+      zoom: 15.0,
     });
     map.addControl(new maplibregl.NavigationControl({ showCompass: true }), "bottom-right");
 
@@ -296,12 +371,27 @@ export default function SnowPathApp() {
           map.addSource("buildings", { type: "geojson", data: feats.buildings });
           map.addLayer({ id: "buildings-fill", type: "fill", source: "buildings", paint: { "fill-color": "#4b5563", "fill-opacity": 0.5 } });
           map.addLayer({ id: "buildings-line", type: "line", source: "buildings", paint: { "line-color": "#2d3748", "line-width": 1.5 } });
-          map.addLayer({ id: "buildings-label", type: "symbol", source: "buildings", layout: { "text-field": ["get", "name"], "text-size": 11, "text-max-width": 8 }, paint: { "text-color": "#cbd5e0", "text-opacity": 0.7 } });
+          // Keep map readable: building labels + OSM labels create heavy overlap.
+          map.addLayer({
+            id: "buildings-label",
+            type: "symbol",
+            source: "buildings",
+            minzoom: 16.8,
+            layout: {
+              "text-field": ["get", "name"],
+              "text-size": 9,
+              "text-max-width": 8,
+            },
+            paint: { "text-color": "#cbd5e0", "text-opacity": 0.65 },
+          });
         }
         if (feats.paths?.features?.length) {
           map.addSource("paths", { type: "geojson", data: feats.paths });
           map.addLayer({ id: "paths-line", type: "line", source: "paths", paint: { "line-color": "#6b7280", "line-width": 2, "line-opacity": 0.6 } });
         }
+        // Keep active route above buildings/paths even if those layers load later.
+        if (map.getLayer("route-casing")) map.moveLayer("route-casing");
+        if (map.getLayer("route-fill")) map.moveLayer("route-fill");
       }).catch(console.error);
 
       // Route segments
@@ -347,6 +437,25 @@ export default function SnowPathApp() {
     return () => { map.remove(); mapRef.current = null; };
   }, []);
 
+  // ── Initial location (single fix) ────────────────────────────────────────
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude: lat, longitude: lon, heading } = pos.coords;
+        setUserLoc({ lat, lon });
+        userMarkerRef.current?.setLngLat([lon, lat]);
+        if (heading != null && !isNaN(heading)) {
+          headingRef.current = heading;
+          setUserHeading(heading);
+          userMarkerRef.current?.setRotation(heading);
+        }
+      },
+      () => undefined,
+      { enableHighAccuracy: true, timeout: 7000, maximumAge: 30000 }
+    );
+  }, []);
+
   // ── Reports → map ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (!mapReady) return;
@@ -361,6 +470,17 @@ export default function SnowPathApp() {
       })),
     });
   }, [reports, mapReady]);
+
+  // ── Route meta → map (handles async race when source isn't ready yet) ───
+  useEffect(() => {
+    if (!mapReady) return;
+    const map = mapRef.current;
+    if (!map) return;
+    const src = map.getSource("route-seg") as any;
+    if (!src) return;
+    const segs = routeFeaturesFromMeta(routeMeta);
+    src.setData({ type: "FeatureCollection", features: segs });
+  }, [routeMeta, mapReady]);
 
   // ── Device orientation → arrow heading ───────────────────────────────────
   useEffect(() => {
@@ -398,33 +518,60 @@ export default function SnowPathApp() {
     setLoading(true);
     try {
       const r = await fetch(`${API_BASE}/route/advanced?start_lat=${start.lat}&start_lon=${start.lon}&end_lat=${end.lat}&end_lon=${end.lon}&mode=${mode}`);
+      if (!r.ok) throw new Error(`Route request failed: ${r.status}`);
       const j = await r.json();
       setRouteMeta(j); setCurrentStep(0);
 
       const map = mapRef.current;
       if (!map) return;
 
-      const segs = (j?.route?.segments || []).map((s: any) => ({
-        type: "Feature", geometry: { type: "LineString", coordinates: s.coords.map((c: any) => [c.lon, c.lat]) },
-        properties: { outdoors: s.outdoors },
-      }));
+      const segs = routeFeaturesFromMeta(j);
       (map.getSource("route-seg") as any)?.setData({ type: "FeatureCollection", features: segs });
 
       const coords = j?.route?.coords || [];
       if (coords.length > 1) {
         const bounds = coords.reduce((b: maplibregl.LngLatBounds, c: any) => b.extend([c.lon, c.lat]),
           new maplibregl.LngLatBounds([coords[0].lon, coords[0].lat], [coords[0].lon, coords[0].lat]));
-        map.fitBounds(bounds, { padding: 80, duration: 900 });
+        map.fitBounds(bounds, {
+          padding: { top: 90, left: 70, bottom: 90, right: 460 },
+          maxZoom: 16.2,
+          duration: 900,
+        });
       }
 
-      // Start/end pins
-      startMarkerRef.current?.remove(); endMarkerRef.current?.remove();
-      const pin = (letter: string, color: string) => { const d = document.createElement("div"); d.innerHTML = `<div style="background:${color};color:#fff;font-size:13px;font-weight:800;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,0.4)">${letter}</div>`; return d; };
-      startMarkerRef.current = new maplibregl.Marker({ element: pin("A", "#4f8ef7") }).setLngLat([start.lon, start.lat]).addTo(map);
-      endMarkerRef.current   = new maplibregl.Marker({ element: pin("B", "#f87171") }).setLngLat([end.lon,   end.lat  ]).addTo(map);
     } catch (err) { console.error("Route failed:", err); }
     setLoading(false);
   }, [start, end, mode]);
+
+  useEffect(() => {
+    if (!start || !end) return;
+    fetchRoute();
+  }, [mode, start, end, fetchRoute]);
+
+  // Keep A/B pins synced to selected points immediately.
+  useEffect(() => {
+    if (!mapReady) return;
+    const map = mapRef.current;
+    if (!map) return;
+    startMarkerRef.current?.remove();
+    if (start) {
+      startMarkerRef.current = new maplibregl.Marker({ element: endpointPin("A", "#4f8ef7") })
+        .setLngLat([start.lon, start.lat])
+        .addTo(map);
+    }
+  }, [start, mapReady]);
+
+  useEffect(() => {
+    if (!mapReady) return;
+    const map = mapRef.current;
+    if (!map) return;
+    endMarkerRef.current?.remove();
+    if (end) {
+      endMarkerRef.current = new maplibregl.Marker({ element: endpointPin("B", "#f87171") })
+        .setLngLat([end.lon, end.lat])
+        .addTo(map);
+    }
+  }, [end, mapReady]);
 
   // ── Submit report ─────────────────────────────────────────────────────────
   const submitReport = useCallback(async () => {
@@ -449,12 +596,12 @@ export default function SnowPathApp() {
       <div ref={mapDivRef} style={{ position: "absolute", inset: 0 }} />
 
       {/* ── Top bar ─────────────────────────────────────────────────────── */}
-      <div style={{ position: "absolute", top: 12, left: "50%", transform: "translateX(-50%)", zIndex: 20, width: "min(560px,calc(100vw - 24px))", display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ position: "absolute", top: 12, right: 12, zIndex: 20, width: "min(420px,calc(100vw - 24px))", display: "flex", flexDirection: "column", gap: 8 }}>
 
         {/* Header chip */}
-        <div style={{ background: "rgba(18,18,28,0.96)", backdropFilter: "blur(20px)", borderRadius: 16, padding: "10px 16px", boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ background: "rgba(18,18,28,0.96)", backdropFilter: "blur(20px)", borderRadius: 16, padding: "10px 12px", boxShadow: "0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.07)", display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 22 }}>❄️</span>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ color: "#f0f4ff", fontWeight: 700, fontSize: 15, letterSpacing: "-.3px" }}>SnowPath UNL</div>
             <div style={{ color: "#4b5563", fontSize: 11 }}>Winter-aware campus routing</div>
           </div>
@@ -518,6 +665,14 @@ export default function SnowPathApp() {
                     {m === "shortest" ? "⚡ Fastest" : m === "sheltered" ? "🏛️ Sheltered" : "✅ Cleared"}
                   </button>
                 ))}
+              </div>
+              <div style={{ marginBottom: 12, background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 10, padding: "8px 10px" }}>
+                <div style={{ fontSize: 11, color: "#cbd5e1", fontWeight: 700 }}>
+                  Path mode: {MODE_META[mode].title}
+                </div>
+                <div style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+                  {MODE_META[mode].description}
+                </div>
               </div>
 
               <button onClick={fetchRoute} disabled={!start || !end || loading} style={{
@@ -606,7 +761,7 @@ export default function SnowPathApp() {
                   : <div style={{ background: "rgba(251,146,60,0.1)", border: "1px solid rgba(251,146,60,0.2)", borderRadius: 9, padding: "8px 12px", marginBottom: 13, fontSize: 12, color: "#fb923c" }}>👆 Tap anywhere on the map to drop a pin first</div>
                 }
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 13 }}>
-                  {Object.entries(REPORT_CONFIG).map(([type, cfg]) => (
+                  {(Object.entries(REPORT_CONFIG) as Array<[ReportType, (typeof REPORT_CONFIG)[ReportType]]>).map(([type, cfg]) => (
                     <button key={type} onClick={() => setReportType(type)} style={{ padding: "11px 8px", borderRadius: 10, border: `2px solid ${reportType === type ? cfg.color : "transparent"}`, background: reportType === type ? cfg.bg : "rgba(255,255,255,0.04)", color: reportType === type ? cfg.color : "#6b7280", cursor: "pointer", fontSize: 13, fontWeight: reportType === type ? 700 : 400, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, transition: "all .15s" }}>
                       {cfg.icon} {cfg.label}
                     </button>
@@ -635,7 +790,7 @@ export default function SnowPathApp() {
             <div style={{ padding: "12px 16px", borderBottom: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <span style={{ color: "#e2e8f0", fontWeight: 700, fontSize: 14 }}>⚠️ Conditions ({reports.length})</span>
               <div style={{ display: "flex", gap: 6 }}>
-                {Object.entries(sc).map(([type, count]) => (
+                {(Object.entries(sc) as Array<[ReportType, number]>).map(([type, count]) => (
                   <span key={type} style={{ fontSize: 10, padding: "2px 7px", borderRadius: 99, background: REPORT_CONFIG[type]?.bg, color: REPORT_CONFIG[type]?.color, fontWeight: 700 }}>
                     {REPORT_CONFIG[type]?.icon} {count}
                   </span>
@@ -670,7 +825,7 @@ export default function SnowPathApp() {
 
       {/* ── Legend ───────────────────────────────────────────────────────── */}
       <div style={{ position: "absolute", bottom: 16, left: 16, zIndex: 10, background: "rgba(18,18,28,0.9)", backdropFilter: "blur(12px)", borderRadius: 12, padding: "8px 12px", boxShadow: "0 4px 16px rgba(0,0,0,0.4)", display: "flex", gap: 10, flexWrap: "wrap" }}>
-        {Object.entries(REPORT_CONFIG).map(([type, cfg]) => (
+        {(Object.entries(REPORT_CONFIG) as Array<[ReportType, (typeof REPORT_CONFIG)[ReportType]]>).map(([type, cfg]) => (
           <div key={type} style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: cfg.color }}>
             <div style={{ width: 8, height: 8, borderRadius: 99, background: cfg.color }} /> {cfg.label}
           </div>
@@ -708,11 +863,12 @@ export default function SnowPathApp() {
 
 /** Smart location search with instant local results + Overpass fallback */
 function LocationSearchInput({
-  dotColor, placeholder, selected, onSelect, onClear, onLocate, showLocateBtn, onFlyTo,
+  dotColor, placeholder, selected, onSelect, onClear, onLocate, showLocateBtn, onFlyTo, clearOnFocus = true,
 }: {
   dotColor: string; placeholder: string; selected: any; onSelect: (v: any) => void;
   onClear: () => void; onLocate?: () => void; showLocateBtn?: boolean;
   onFlyTo?: (loc: { lat: number; lon: number }) => void;
+  clearOnFocus?: boolean;
 }) {
   const [query, setQuery]       = useState("");
   const [results, setResults]   = useState<any[]>([]);
@@ -723,24 +879,31 @@ function LocationSearchInput({
   const isSelected = !!selected;
 
   const runSearch = useCallback(async (q: string) => {
-    // 1. Instant local results
-    const local = searchBuildings(q);
-    setResults(local);
+    if (q.trim().length < 2) { setResults([]); return; }
+    setFetching(true);
+    const local = localSearchResults(q);
+    try {
+      const r = await fetch(`${API_BASE}/campus/search?q=${encodeURIComponent(q)}`);
+      const data = await r.json();
+      const remote = (data.results || []).map((res: any) => ({
+        ...res,
+        icon: "📍",
+        type: res.type === "landmark" ? "Campus Landmark" : "Campus Building",
+      }));
 
-    // 2. Debounced Overpass fallback (only if local gives < 3 results)
-    if (local.length < 3 && q.length >= 3) {
-      setFetching(true);
-      try {
-        const r = await fetch(`${API_BASE}/campus/search?q=${encodeURIComponent(q)}`);
-        const data = await r.json();
-        const remote = (data.results || []).map((res: any) => ({ ...res, icon: "📍", type: "Campus" }));
-        // Merge: local names take priority, add any new ones from remote
-        const localNames = new Set(local.map(l => l.name.toLowerCase()));
-        const merged = [...local, ...remote.filter((r: any) => !localNames.has(r.name.toLowerCase()))].slice(0, 12);
-        setResults(merged);
-      } catch (_) { /* ignore */ }
-      setFetching(false);
+      const merged: any[] = [];
+      const seen = new Set<string>();
+      for (const item of [...local, ...remote]) {
+        const key = `${normalizeSearchText(item.name)}|${Number(item.lat).toFixed(6)}|${Number(item.lon).toFixed(6)}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        merged.push(item);
+      }
+      setResults(merged.slice(0, 12));
+    } catch (_) {
+      setResults(local);
     }
+    setFetching(false);
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -759,7 +922,7 @@ function LocationSearchInput({
     inputRef.current?.blur();
   };
 
-  const displayValue = isSelected && !open ? selected.name : query;
+  const displayValue = isSelected && !open ? "" : query;
 
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 10, position: "relative", zIndex: 50 }}>
@@ -769,7 +932,14 @@ function LocationSearchInput({
           ref={inputRef}
           value={displayValue}
           onChange={handleChange}
-          onFocus={() => { if (query) setOpen(true); }}
+          onFocus={() => {
+            if (isSelected && clearOnFocus) {
+              onClear();
+              setQuery("");
+              setResults([]);
+            }
+            setOpen(true);
+          }}
           onBlur={() => setTimeout(() => setOpen(false), 180)}
           placeholder={isSelected ? "" : placeholder}
           autoComplete="off"

@@ -54,6 +54,22 @@ def build_graph_from_overpass(data):
             G.add_edge(a, b, meters=dist, outdoors=True)
     return G
 
+def build_graph_from_geojson_paths(feature_collection):
+    G = nx.Graph()
+    for feat in feature_collection.get("features", []):
+        geom = feat.get("geometry", {})
+        if geom.get("type") != "LineString":
+            continue
+        coords = geom.get("coordinates", []) or []
+        for i in range(len(coords) - 1):
+            a = (coords[i][1], coords[i][0])
+            b = (coords[i + 1][1], coords[i + 1][0])
+            dist = approx_meters(a, b)
+            G.add_node(a)
+            G.add_node(b)
+            G.add_edge(a, b, meters=dist, outdoors=True)
+    return G
+
 def fallback_demo_graph():
     G = nx.Graph()
     pts = [
