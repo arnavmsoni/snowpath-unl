@@ -7,14 +7,6 @@ This repository includes:
 - `frontend/`: Next.js + MapLibre UI
 - `backend/`: FastAPI API, routing engine, and condition modeling
 
-## What Judges Should Evaluate
-
-1. Route quality under winter conditions.
-2. Differences between routing modes (`shortest`, `sheltered`, `cleared`).
-3. Indoor pass-through behavior for sheltered routes.
-4. Dynamic risk modeling from weather and condition reports.
-5. Synthetic traffic/event simulation endpoints.
-
 ## Core Features
 
 - Multi-mode routing:
