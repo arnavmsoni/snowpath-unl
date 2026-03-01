@@ -10,6 +10,7 @@ from app.routes.route import router as route_router
 from app.routes.events import router as events_router
 from app.routes.traffic import router as traffic_router
 from app.routes.campus import router as campus_router
+from app.routes.analytics import router as analytics_router
 
 app = FastAPI(title="SnowPath UNL API")
 
@@ -35,3 +36,4 @@ app.include_router(route_router)
 app.include_router(events_router)
 app.include_router(traffic_router)
 app.include_router(campus_router)
+app.include_router(analytics_router)

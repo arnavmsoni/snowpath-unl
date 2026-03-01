@@ -3,6 +3,19 @@
 SnowPath UNL is a winter-aware campus navigation app for the University of Nebraska-Lincoln (City Campus).
 It computes routes using weather, reported path conditions, and indoor connector availability to reduce winter exposure.
 
+## Predictive Analytics (Top-Line)
+
+SnowPath UNL includes a predictive risk layer for winter walking:
+
+- Predicts near-term walking risk from live weather signals (`snowfall`, wind, freezing temperatures).
+- Blends weather risk with reported path conditions (`blocked`, `icy`, `salted`, `cleared`).
+- Produces mode-specific route scoring for `shortest`, `sheltered`, and `cleared`.
+- Surfaces judge-friendly metrics: distance, outdoor exposure, sheltered distance, and snow-risk score.
+- Provides competition analytics endpoints for snapshot evaluation and diagnostics:
+  - `GET /platform/analytics/snapshot`
+  - `GET /platform/analytics/route-matrix`
+  - `GET /platform/scrape/status`
+
 This repository includes:
 - `frontend/`: Next.js + MapLibre UI
 - `backend/`: FastAPI API, routing engine, and condition modeling
@@ -125,6 +138,9 @@ Open:
 - `POST /pass-through`
 - `GET /events`
 - `GET /traffic?store=true|false`
+- `GET /platform/analytics/snapshot`
+- `GET /platform/analytics/route-matrix`
+- `GET /platform/scrape/status`
 
 ## Judge Evaluation Script (quick manual)
 

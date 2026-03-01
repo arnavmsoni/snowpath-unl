@@ -396,11 +396,18 @@ export default function SnowPathApp() {
 
       // Route segments
       map.addSource("route-seg", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
-      map.addLayer({ id: "route-casing", type: "line", source: "route-seg", paint: { "line-width": 14, "line-color": "#fff", "line-opacity": 0.35 } });
+      map.addLayer({
+        id: "route-casing",
+        type: "line",
+        source: "route-seg",
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-width": 12, "line-color": "#fff", "line-opacity": 0.30 },
+      });
       map.addLayer({
         id: "route-fill", type: "line", source: "route-seg",
+        layout: { "line-cap": "round", "line-join": "round" },
         paint: {
-          "line-width": 8,
+          "line-width": 7,
           "line-color": ["case", ["==", ["get", "outdoors"], false], "#34d399", "#4f8ef7"],
           "line-opacity": 0.95,
         },

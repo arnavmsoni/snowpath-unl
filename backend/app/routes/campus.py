@@ -2,7 +2,7 @@ import os
 import json
 import re
 from fastapi import APIRouter, HTTPException, Depends, Body
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
 from pydantic import BaseModel
 from app.services.osm_graph import fetch_buildings_and_entrances_overpass, fetch_walkways_overpass
 from app.config import CAMPUS_LAT, CAMPUS_LON
@@ -12,6 +12,102 @@ from app.models.user_report import UserReport
 from app.models.building_pass_through import BuildingPassThrough
 
 router = APIRouter()
+
+
+class RouteModeDescriptor(BaseModel):
+    mode: str
+    title: str
+    behavior: str
+
+
+class PredictionDescriptor(BaseModel):
+    name: str
+    signals: List[str]
+    output: str
+    where_used: str
+
+
+class FeatureDescriptor(BaseModel):
+    name: str
+    summary: str
+
+
+class DemoScriptLine(BaseModel):
+    order: int
+    text: str
+
+
+class PlatformCapabilitiesResponse(BaseModel):
+    product_name: str
+    one_liner: str
+    route_modes: List[RouteModeDescriptor]
+    predictive_components: List[PredictionDescriptor]
+    visible_metrics: List[FeatureDescriptor]
+    demo_forecasting: List[FeatureDescriptor]
+    narrative_script: List[DemoScriptLine]
+
+
+ROUTE_MODE_DESCRIPTORS = [
+    RouteModeDescriptor(
+        mode="shortest",
+        title="Fastest",
+        behavior="Prioritizes travel time and direct path efficiency.",
+    ),
+    RouteModeDescriptor(
+        mode="sheltered",
+        title="Sheltered",
+        behavior="Prioritizes indoor connectors to reduce outdoor cold exposure.",
+    ),
+    RouteModeDescriptor(
+        mode="cleared",
+        title="Cleared",
+        behavior="Prioritizes safer outdoor segments using condition reports.",
+    ),
+]
+
+PREDICTIVE_COMPONENTS = [
+    PredictionDescriptor(
+        name="Near-term weather risk prediction",
+        signals=["snowfall", "wind_speed_10m", "temperature_2m", "precipitation"],
+        output="outdoor_penalty and snow_risk_score",
+        where_used="route and route/advanced scoring",
+    ),
+    PredictionDescriptor(
+        name="Path-condition risk prediction",
+        signals=["blocked reports", "icy reports", "salted reports", "cleared reports"],
+        output="segment-level hazard/bonus adjustment",
+        where_used="mode-aware edge weighting",
+    ),
+    PredictionDescriptor(
+        name="Foot-traffic hotspot forecasting",
+        signals=["time-of-day", "campus event patterns"],
+        output="synthetic traffic intensity points",
+        where_used="/traffic endpoint for demo and evaluation",
+    ),
+]
+
+VISIBLE_METRICS = [
+    FeatureDescriptor(name="Distance", summary="Total route distance in kilometers/meters."),
+    FeatureDescriptor(name="Outdoor exposure", summary="Outdoor vs sheltered meters and cold exposure minutes."),
+    FeatureDescriptor(name="Snow risk score", summary="Weather-adjusted route risk indicator."),
+    FeatureDescriptor(name="Turn-by-turn", summary="Step list with direction and segment type."),
+]
+
+FORECASTING_FEATURES = [
+    FeatureDescriptor(name="Synthetic event feed", summary="Likely event clusters generated near campus landmarks."),
+    FeatureDescriptor(name="Synthetic traffic feed", summary="Predicted hotspot points with intensity and optional DB storage."),
+]
+
+NARRATIVE_SCRIPT = [
+    DemoScriptLine(order=1, text="This is an average winter day at UNL with SnowPath."),
+    DemoScriptLine(order=2, text="You enter a start and end destination, and the app generates three route options."),
+    DemoScriptLine(order=3, text="Fastest prioritizes travel time, Sheltered prioritizes indoor connectors, and Cleared prioritizes safer reported outdoor paths."),
+    DemoScriptLine(order=4, text="Under the hood, SnowPath predicts near-term walking risk using live weather signals like snowfall, wind, and freezing conditions."),
+    DemoScriptLine(order=5, text="It combines those signals with path-condition reports such as blocked, icy, salted, and cleared segments."),
+    DemoScriptLine(order=6, text="You can see distance, outdoor exposure, snow-risk metrics, and turn-by-turn instructions."),
+    DemoScriptLine(order=7, text="For demo forecasting, SnowPath also generates likely foot-traffic hotspots from time-of-day and event patterns."),
+    DemoScriptLine(order=8, text="So this is not just map directions; it is predictive risk routing for real winter walking decisions."),
+]
 
 CACHE_DIR  = os.path.join(os.path.dirname(__file__), "..", "..", "cache")
 os.makedirs(CACHE_DIR, exist_ok=True)
@@ -307,6 +403,23 @@ def campus_search(q: str):
 
     ranked = sorted(best_by_name.values(), key=lambda r: (-r["score"], r["name"]))
     return {"results": [{k: v for k, v in r.items() if k != "score"} for r in ranked[:20]]}
+
+
+@router.get("/platform/capabilities", response_model=PlatformCapabilitiesResponse)
+def platform_capabilities():
+    """
+    Competition/demo metadata endpoint.
+    This documents product capabilities without changing routing logic.
+    """
+    return PlatformCapabilitiesResponse(
+        product_name="SnowPath UNL",
+        one_liner="Winter-aware predictive campus routing with weather and condition-informed path scoring.",
+        route_modes=ROUTE_MODE_DESCRIPTORS,
+        predictive_components=PREDICTIVE_COMPONENTS,
+        visible_metrics=VISIBLE_METRICS,
+        demo_forecasting=FORECASTING_FEATURES,
+        narrative_script=NARRATIVE_SCRIPT,
+    )
 
 
 @router.post("/reports")

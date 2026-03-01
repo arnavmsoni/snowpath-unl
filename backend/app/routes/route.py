@@ -438,7 +438,27 @@ def compute_campus_route(
 
         return meters * max(0.05, mult)
 
-    def solve_leg(a, b):
+    def meters_path(p):
+        total = 0.0
+        for i in range(len(p) - 1):
+            a, b = p[i], p[i + 1]
+            attrs = G.get_edge_data(a, b) or {}
+            total += attrs.get("meters", approx_meters(a, b))
+        return total
+
+    def sheltered_meters_path(p):
+        total = 0.0
+        for i in range(len(p) - 1):
+            a, b = p[i], p[i + 1]
+            attrs = G.get_edge_data(a, b) or {}
+            if not attrs.get("outdoors", True):
+                total += attrs.get("meters", approx_meters(a, b))
+        return total
+
+    def path_signature(p):
+        return tuple(p)
+
+    def solve_leg(a, b, allow_straight_fallback: bool = True):
         try:
             return nx.astar_path(
                 G, a, b,
@@ -449,12 +469,14 @@ def compute_campus_route(
             try:
                 return nx.shortest_path(G, a, b, weight=lambda u, v, attrs: attrs.get("meters", 1.0))
             except Exception:
-                return [a, b]
+                return [a, b] if allow_straight_fallback else None
 
     def solve_via(points):
         full = []
         for i in range(len(points) - 1):
-            leg = solve_leg(points[i], points[i + 1])
+            leg = solve_leg(points[i], points[i + 1], allow_straight_fallback=False)
+            if not leg or len(leg) < 2:
+                return None
             if not full:
                 full.extend(leg)
             else:
@@ -463,13 +485,70 @@ def compute_campus_route(
 
     if is_avery_cather_trip() and mode == "sheltered":
         # Force sheltered route through indoor connectors on the way.
-        path = solve_via([s, HAWKS_EAST, HAWKS_CTR, HAWKS_WEST, SELLECK_S, SELLECK_CTR, SELLECK_N, t])
+        forced = solve_via([s, HAWKS_EAST, HAWKS_CTR, HAWKS_WEST, SELLECK_S, SELLECK_CTR, SELLECK_N, t])
+        path = forced if forced else solve_leg(s, t)
     elif is_avery_cather_trip() and mode == "cleared":
-        # Force cleared route to use a clearly different outdoor detour:
-        # west to Stadium Dr, north on west edge, then back east on X toward housing.
-        path = solve_via([s, U_STAD, STAD_X, X_14, t])
+        # Force cleared route to use a different (but still realistic) outdoor detour.
+        forced = solve_via([s, W_16, N16_X, X_14, t])
+        path = forced if forced else solve_leg(s, t)
     else:
         path = solve_leg(s, t)
+
+    # If modes collapse to the same baseline geometry, force mode-specific alternatives.
+    if mode in ("sheltered", "cleared"):
+        try:
+            baseline = nx.shortest_path(G, s, t, weight=lambda u, v, attrs: attrs.get("meters", 1.0))
+        except Exception:
+            baseline = path
+
+        if path_signature(path) == path_signature(baseline):
+            if mode == "sheltered":
+                candidates = [
+                    [s, UNION_CTR, LOVE_CTR, t],
+                    [s, HAWKS_CTR, UNION_CTR, t],
+                    [s, HAWKS_CTR, SELLECK_CTR, t],
+                    [s, UNION_CTR, SELLECK_CTR, t],
+                ]
+                chosen = path
+                chosen_score = edge_weight(s, t, {"meters": meters_path(path), "outdoors": True})
+                for pts in candidates:
+                    cand = solve_via(pts)
+                    if not cand:
+                        continue
+                    if path_signature(cand) == path_signature(baseline):
+                        continue
+                    sm = sheltered_meters_path(cand)
+                    if sm < 25.0:
+                        continue
+                    cand_m = meters_path(cand)
+                    # Avoid absurd detours while still preferring non-baseline indoor paths.
+                    if cand_m > max(1400.0, meters_path(baseline) * 1.45):
+                        continue
+                    score = cand_m - sm * 0.7
+                    if score < chosen_score:
+                        chosen = cand
+                        chosen_score = score
+                path = chosen
+            else:  # cleared
+                candidates = [
+                    [s, U_16, VINE_16, t],
+                    [s, U_17, VINE_17, t],
+                    [s, W_16, VINE_16, t],
+                ]
+                chosen = path
+                chosen_m = meters_path(path)
+                for pts in candidates:
+                    cand = solve_via(pts)
+                    if not cand:
+                        continue
+                    if path_signature(cand) == path_signature(baseline):
+                        continue
+                    cand_m = meters_path(cand)
+                    if cand_m <= max(1500.0, meters_path(baseline) * 1.35):
+                        if sheltered_meters_path(cand) <= 1.0 and cand_m > chosen_m * 0.98:
+                            chosen = cand
+                            chosen_m = cand_m
+                path = chosen
 
     # ── Build output ──────────────────────────────────────────────────────
     total_m    = 0.0
