@@ -22,6 +22,23 @@ def fetch_walkways_overpass(bbox: str):
     r.raise_for_status()
     return r.json()
 
+def fetch_buildings_and_entrances_overpass(bbox: str):
+        """Fetch building footprints (ways/relations) and entrance nodes within bbox."""
+        s, w, n, e = bbox.split(",")
+        query = f"""
+        [out:json][timeout:25];
+        (
+            way["building"]({s},{w},{n},{e});
+            relation["building"]({s},{w},{n},{e});
+            node["entrance"]({s},{w},{n},{e});
+            node["door"]({s},{w},{n},{e});
+        );
+        out geom;
+        """
+        r = requests.post(OVERPASS_URL, data=query, timeout=35)
+        r.raise_for_status()
+        return r.json()
+
 def build_graph_from_overpass(data):
     G = nx.Graph()
     for el in data.get("elements", []):
