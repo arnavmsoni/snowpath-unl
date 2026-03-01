@@ -1,0 +1,13 @@
+# node
+frontend/node_modules
+frontend/.next
+frontend/.env.local
+
+# python
+backend/.venv
+backend/__pycache__
+backend/.pytest_cache
+
+# env
+.env
+backend/.env
